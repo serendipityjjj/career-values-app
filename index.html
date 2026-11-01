@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>직업가치관 밸런스 검사 · 중국어 어휘</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- 한자→병음 변환(발음 테스트 결과 표시용) -->
+<script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3/dist/index.js"></script>
+<link rel="stylesheet" href="./fonts/zhuque/zhuque.css">
+<script src="./data.js"></script>
+<style>
+  :root {
+    --bg: #f4f3ef; --card: #fff; --ink: #24221f; --sub: #6b665e; --line: #e2ded5;
+    --red: #c8402f; --red-soft: #fbeeeb; --blue: #2a64b8; --blue-soft: #edf3fb;
+    --green: #2f7d4f; --green-soft: #e8f4ec; --amber: #b7791f; --amber-soft: #fdf4e3;
+    --r: 14px;
+    --kr: "Gowun Dodum", sans-serif;
+    --kr-display: "Gowun Batang", serif;
+    --zh: "Zhuque Fangsong", "FangSong", "STFangsong", serif;
+    --py: "Noto Sans", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--kr); background: var(--bg); color: var(--ink); word-break: keep-all; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  button { font-family: inherit; cursor: pointer; color: inherit; }
+  .zh { font-family: var(--zh); }
+  .py { font-family: var(--py); letter-spacing: .01em; }
+
+  header.top { position: sticky; top: 0; z-index: 50; background: rgba(244,243,239,.94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .top-inner { max-width: 1120px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 20px; }
+  .brand { font-family: var(--kr-display); font-weight: 700; font-size: 19px; white-space: nowrap; }
+  .tabs { display: flex; gap: 6px; flex: 1; overflow-x: auto; }
+  .tab { flex: 1; min-width: 110px; padding: 10px 8px; border: 1.5px solid transparent; border-radius: 10px; background: none; font-size: 15px; color: var(--sub); white-space: nowrap; }
+  .tab .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--line); font-size: 12px; margin-right: 6px; }
+  .tab.active { border-color: var(--red); background: var(--red-soft); color: var(--red); font-weight: 700; }
+  .tab.active .n { background: var(--red); color: #fff; }
+  .tab.done .n { background: var(--green); color: #fff; }
+
+  main { max-width: 1120px; margin: 0 auto; padding: 24px 24px 120px; }
+  .page { display: none; } .page.active { display: block; animation: fade .25s ease-out; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .card { background: var(--card); border-radius: var(--r); padding: 26px 28px; box-shadow: 0 1px 3px rgba(0,0,0,.05); margin-bottom: 18px; }
+  h2 { font-family: var(--kr-display); font-size: 24px; margin-bottom: 6px; }
+  .desc { color: var(--sub); font-size: 16px; margin-bottom: 20px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+  .btn { min-height: 46px; padding: 0 18px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff; font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .btn.blue { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); }
+  .btn.red { border-color: var(--red); background: var(--red); color: #fff; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .seg { display: inline-flex; border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg button { border: none; background: #fff; padding: 0 14px; min-height: 42px; font-size: 14px; }
+  .seg button.on { background: var(--ink); color: #fff; }
+
+  /* 어휘 카드 */
+  .vocab-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .vcard { border: 1.5px solid var(--line); border-radius: var(--r); padding: 18px; background: #fdfcfa; display: flex; flex-direction: column; gap: 6px; transition: .2s; }
+  .vcard.playing { border-color: var(--blue); background: var(--blue-soft); }
+  .vcard .zh { font-size: 34px; line-height: 1.25; }
+  .vcard .py { font-size: 19px; color: var(--blue); font-weight: 600; }
+  .vcard .kr { font-size: 17px; font-weight: 700; }
+  .vcard .d { font-size: 14px; color: var(--sub); flex: 1; }
+  .vcard .acts { display: flex; gap: 8px; margin-top: 6px; }
+  .vcard .acts .btn { flex: 1; justify-content: center; min-height: 44px; font-size: 14px; padding: 0 8px; }
+  .sentence-box { margin-top: 20px; border: 1.5px dashed var(--blue); border-radius: var(--r); padding: 18px 20px; background: var(--blue-soft); }
+  .sentence-box .zh { font-size: 28px; }
+  .sentence-box .py { font-size: 18px; color: var(--blue); }
+
+  /* 발음 테스트 */
+  .stt-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+  .stt-list { display: flex; flex-direction: column; gap: 8px; }
+  .stt-item { text-align: left; border: 1.5px solid var(--line); border-radius: 10px; background: #fff; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .stt-item.on { border-color: var(--red); background: var(--red-soft); }
+  .stt-item .zh { font-size: 21px; }
+  .stt-item .kr { font-size: 13px; color: var(--sub); }
+  .badge { font-size: 12px; padding: 2px 8px; border-radius: 20px; background: var(--line); color: var(--sub); white-space: nowrap; }
+  .badge.g { background: var(--green-soft); color: var(--green); } .badge.a { background: var(--amber-soft); color: var(--amber); } .badge.r { background: var(--red-soft); color: var(--red); }
+  .stt-stage { border: 1.5px solid var(--line); border-radius: var(--r); padding: 28px; text-align: center; background: #fdfcfa; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .stt-stage .zh { font-size: 56px; line-height: 1.2; }
+  .stt-stage .py { font-size: 24px; color: var(--blue); font-weight: 600; }
+  .mic { width: 96px; height: 96px; border-radius: 50%; border: none; background: var(--red); color: #fff; font-size: 38px; margin: 10px 0 4px; box-shadow: 0 4px 14px rgba(200,64,47,.3); }
+  .mic.rec { animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(200,64,47,.5); } 100% { box-shadow: 0 0 0 22px rgba(200,64,47,0); } }
+  .stt-result { width: 100%; max-width: 520px; border-radius: 12px; padding: 16px; margin-top: 6px; text-align: left; display: none; }
+  .stt-result.show { display: block; }
+  .stt-result.g { background: var(--green-soft); } .stt-result.a { background: var(--amber-soft); } .stt-result.r { background: var(--red-soft); }
+  .stt-result .score { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .stt-result .row { font-size: 15px; display: flex; gap: 8px; margin-top: 4px; }
+  .stt-result .row b { min-width: 72px; color: var(--sub); font-weight: 600; }
+  .ch-ok { color: var(--green); } .ch-ng { color: var(--red); text-decoration: underline wavy; }
+  .notice { font-size: 14px; color: var(--sub); background: var(--amber-soft); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; }
+
+  .game-notice { font-size: 15px; color: var(--ink); margin-bottom: 18px; }
+
+  /* 사전 선택 */
+  .prior-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .prior { position: relative; border: 1.5px solid var(--line); border-radius: 12px; background: #fdfcfa; padding: 16px 10px; text-align: center; transition: .2s; }
+  .prior.sel { border-color: var(--red); background: var(--red-soft); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+  .prior .zh { font-size: 26px; } .prior .kr { font-size: 16px; font-weight: 700; } .prior .py { font-size: 14px; color: var(--sub); }
+  .prior .rank { position: absolute; top: 8px; right: 8px; background: var(--red); color: #fff; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+
+  /* 밸런스 게임 */
+  .game-layout { display: grid; grid-template-columns: 1fr 260px; gap: 20px; align-items: start; }
+  .q-head { display: flex; align-items: center; gap: 10px; font-family: var(--kr-display); font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+  .pill { background: var(--ink); color: #fff; font-family: var(--kr); font-size: 14px; padding: 3px 12px; border-radius: 20px; }
+  .scenario { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--blue); border-radius: 8px; padding: 12px 16px; font-size: 16px; color: var(--sub); margin-bottom: 16px; }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .choice { min-height: 170px; border: 2px solid var(--line); background: #fff; border-radius: var(--r); padding: 22px; text-align: left; display: flex; flex-direction: column; gap: 14px; transition: .18s; }
+  .choice:hover { border-color: #c9c3b6; }
+  .choice.sel { border-color: var(--red); background: var(--red-soft); box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+  .choice .ab { width: 38px; height: 38px; border-radius: 50%; background: var(--line); display: grid; place-items: center; font-weight: 700; font-size: 16px; }
+  .choice.sel .ab { background: var(--red); color: #fff; }
+  .choice .t { font-size: 18px; line-height: 1.5; }
+  .q-nav { display: flex; gap: 12px; margin-top: 18px; }
+  .q-nav .btn { flex: 1; justify-content: center; min-height: 52px; font-size: 16px; }
+  .kbd-hint { font-size: 13px; color: var(--sub); margin-top: 10px; text-align: center; }
+  .side { position: sticky; top: 84px; }
+  .prog-num { font-size: 30px; font-weight: 700; color: var(--red); font-family: var(--py); }
+  .bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; margin: 8px 0 16px; }
+  .bar > div { height: 100%; background: var(--red); width: 0; transition: width .25s; }
+  .palette { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .pbtn { height: 36px; border-radius: 6px; border: 1px solid var(--line); background: #fff; font-size: 13px; font-weight: 600; color: var(--sub); font-family: var(--py); }
+  .pbtn.ans { background: var(--green-soft); color: var(--green); border-color: #c4e3cf; }
+  .pbtn.cur { outline: 2px solid var(--red); outline-offset: 1px; color: var(--ink); }
+
+  /* 결과 */
+  .result-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  table.cmp { width: 100%; border-collapse: collapse; font-size: 16px; }
+  table.cmp th, table.cmp td { border: 1px solid var(--line); padding: 12px 10px; text-align: center; }
+  table.cmp th { background: #faf9f6; font-weight: 600; }
+  table.cmp .zh { font-size: 20px; }
+  .match { color: var(--green); font-weight: 700; }
+  .scores { display: flex; flex-direction: column; gap: 8px; }
+  .srow { display: grid; grid-template-columns: 120px 1fr 36px; align-items: center; gap: 10px; font-size: 15px; }
+  .strack { height: 18px; background: #f0eee8; border-radius: 4px; overflow: hidden; }
+  .strack div { height: 100%; background: var(--blue); border-radius: 4px; }
+  .srow.top .strack div { background: var(--red); }
+  .srow .v { font-family: var(--py); font-weight: 700; text-align: right; }
+  .summary { margin-top: 16px; padding: 14px 16px; border-radius: 10px; background: var(--blue-soft); font-size: 16px; }
+  .final-sentence { text-align: center; }
+  .final-sentence .zh { font-size: 40px; margin: 8px 0; }
+  .final-sentence .py { font-size: 20px; color: var(--blue); }
+
+  footer.dock { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid var(--line); z-index: 40; }
+  .dock-inner { max-width: 1120px; margin: 0 auto; padding: 12px 24px; display: flex; gap: 12px; }
+  .dock-inner .btn { min-height: 52px; font-size: 16px; justify-content: center; }
+  .dock-inner .next { flex: 1; font-family: var(--kr-display); font-weight: 700; }
+
+  /* 세로 태블릿 / 좁은 화면 */
+  @media (max-width: 900px) {
+    .vocab-grid { grid-template-columns: repeat(2, 1fr); }
+    .stt-layout { grid-template-columns: 1fr; }
+    .stt-list { flex-direction: row; overflow-x: auto; padding-bottom: 4px; }
+    .stt-item { min-width: 150px; }
+    .game-layout { grid-template-columns: 1fr; }
+    .side { position: static; order: -1; }
+    .palette { grid-template-columns: repeat(12, 1fr); }
+    .result-layout { grid-template-columns: 1fr; }
+    .brand { display: none; }
+  }
+  @media (max-width: 600px) {
+    main, .top-inner, .dock-inner { padding-left: 14px; padding-right: 14px; }
+    .card { padding: 20px 16px; }
+    .vocab-grid, .choices { grid-template-columns: 1fr; }
+    .prior-grid { grid-template-columns: repeat(2, 1fr); }
+    .palette { grid-template-columns: repeat(9, 1fr); }
+    .tab { min-width: 92px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">직업가치관 · <span class="zh">职业价值观</span></div>
+    <nav class="tabs" id="tabs"></nav>
+  </div>
+</header>
+
+<main>
+  <!-- 1. 어휘 듣기 -->
+  <section class="page" id="page-1">
+    <div class="card">
+      <h2>심화 어휘 듣기</h2>
+      <p class="desc">직업가치관을 나타내는 중국어 9개 단어입니다. 원어민 음성으로 듣고 큰 소리로 따라 읽어 보세요.</p>
+      <div class="toolbar">
+        <button class="btn blue" id="playAllBtn" onclick="playAll()">▶ 전체 연속 듣기</button>
+        <div class="seg" id="speedSeg">
+          <button data-r="0.6">천천히</button><button data-r="0.85" class="on">보통</button><button data-r="1">원래 속도</button>
+        </div>
+        <div class="seg" id="showSeg">
+          <button data-m="all" class="on">모두 보기</button><button data-m="nopy">병음 가리기</button><button data-m="nokr">뜻 가리기</button>
+        </div>
+      </div>
+      <div class="vocab-grid" id="vocabGrid"></div>
+      <div class="sentence-box">
+        <div style="font-weight:700;margin-bottom:4px;">핵심 문형</div>
+        <div class="zh">我觉得 ___ 很重要。</div>
+        <div class="py">Wǒ juéde ___ hěn zhòngyào.</div>
+        <div style="color:var(--sub);font-size:15px;margin-top:4px;">저는 ___이(가) 중요하다고 생각해요.</div>
+        <button class="btn blue" style="margin-top:10px;" onclick="speak('我觉得自我发展很重要。')">🔊 예시 듣기 · 我觉得自我发展很重要。</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 발음 테스트 -->
+  <section class="page" id="page-2">
+    <div class="card">
+      <h2>발음 테스트</h2>
+      <p class="desc">단어를 고르고 🎤 버튼을 누른 뒤 중국어로 말해 보세요. 음성 인식 결과와 목표 단어를 비교해 알려 줍니다.</p>
+      <div class="notice" id="sttNotice">음성 인식은 Chrome(크롬북 포함)에서 가장 잘 동작하며, 처음 한 번 마이크 권한을 허용해야 합니다. 인식은 글자 단위라 성조 하나하나를 채점하지는 못하니 참고용으로 활용하세요.</div>
+      <div class="stt-layout">
+        <div class="stt-list" id="sttList"></div>
+        <div class="stt-stage">
+          <div class="zh" id="sttZh"></div>
+          <div class="py" id="sttPy"></div>
+          <div id="sttKr" style="color:var(--sub);font-size:17px;"></div>
+          <button class="btn blue" onclick="speak(sttTargets[sttIdx].zh)">🔊 먼저 들어보기</button>
+          <button class="mic" id="micBtn" onclick="toggleRec()" aria-label="녹음">🎤</button>
+          <div id="micState" style="color:var(--sub);font-size:15px;">버튼을 누르고 말하세요</div>
+          <div class="stt-result" id="sttResult"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 사전 선택 -->
+  <section class="page" id="page-3">
+    <div class="card">
+      <h2>내가 생각하는 중요 가치 (사전 선택)</h2>
+      <p class="desc">검사 전에, 나에게 가장 중요하다고 생각하는 가치 3가지를 1위부터 순서대로 골라 보세요. 다시 누르면 취소됩니다.</p>
+      <div class="prior-grid" id="priorGrid"></div>
+    </div>
+  </section>
+
+  <!-- 4. 밸런스 게임 -->
+  <section class="page" id="page-4">
+    <div class="notice game-notice">ℹ️ 이 밸런스 게임은 수업용으로 만든 자기 탐색 활동이에요. 공인된 표준화 검사가 아니므로, 결과는 정답이 아니라 '나를 돌아보는 계기'로 활용해 주세요.</div>
+    <div class="game-layout">
+      <div class="card" style="margin-bottom:0;">
+        <div class="q-head"><span class="pill" id="qNum">Q1</span><span>둘 중 더 포기할 수 없는 것은?</span></div>
+        <div class="scenario" id="qScenario"></div>
+        <div class="choices">
+          <button class="choice" id="choiceA" onclick="choose('A')"><span class="ab">A</span><span class="t" id="textA"></span></button>
+          <button class="choice" id="choiceB" onclick="choose('B')"><span class="ab">B</span><span class="t" id="textB"></span></button>
+        </div>
+        <div class="q-nav">
+          <button class="btn" id="qPrev" onclick="moveQ(-1)">← 이전 문항</button>
+          <button class="btn" id="qNext" onclick="moveQ(1)">다음 문항 →</button>
+        </div>
+        <div class="kbd-hint">키보드: A / B 로 선택, ← → 로 이동</div>
+      </div>
+      <aside class="card side" style="margin-bottom:0;">
+        <div style="font-size:14px;color:var(--sub);">진행률</div>
+        <div class="prog-num" id="progNum">0 / 36</div>
+        <div class="bar"><div id="progFill"></div></div>
+        <div style="font-size:13px;color:var(--sub);margin-bottom:8px;">번호를 눌러 이동</div>
+        <div class="palette" id="palette"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 5. 결과 -->
+  <section class="page" id="page-5">
+    <div class="notice game-notice">ℹ️ 이 밸런스 게임은 수업용으로 만든 자기 탐색 활동이에요. 공인된 표준화 검사가 아니므로, 결과는 정답이 아니라 '나를 돌아보는 계기'로 활용해 주세요.</div>
+    <div class="result-layout">
+      <div class="card">
+        <h2>사전 선택 vs 검사 결과</h2>
+        <p class="desc">내가 생각한 가치와 실제 선택에서 드러난 가치를 비교해 보세요.</p>
+        <table class="cmp">
+          <thead><tr><th>순위</th><th>사전 선택</th><th>검사 결과</th></tr></thead>
+          <tbody id="cmpBody"></tbody>
+        </table>
+        <div class="summary" id="cmpSummary"></div>
+      </div>
+      <div class="card">
+        <h2>가치별 득점</h2>
+        <p class="desc">각 가치는 다른 8개 가치와 한 번씩 비교되어 최대 8점입니다.</p>
+        <div class="scores" id="scoreList"></div>
+      </div>
+    </div>
+    <div class="card final-sentence">
+      <h2>나의 핵심 문장</h2>
+      <div class="zh" id="finalZh"></div>
+      <div class="py" id="finalPy"></div>
+      <div id="finalKr" style="color:var(--sub);font-size:16px;margin-top:4px;"></div>
+      <div class="toolbar" style="justify-content:center;margin-top:16px;">
+        <button class="btn blue" onclick="speak(finalSentence.zh)">🔊 듣기</button>
+        <button class="btn red" onclick="practiceFinal()">🎤 이 문장 발음 테스트하기</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="dock">
+  <div class="dock-inner">
+    <button class="btn" id="prevStep" onclick="goStep(step-1)">← 이전</button>
+    <button class="btn red next" id="nextStep" onclick="nextStep()">다음 →</button>
+  </div>
+</footer>
+
+<script>
+const values = initialData.valuesList;
+const questions = initialData.questions;
+const STEPS = ["어휘 듣기", "발음 테스트", "사전 선택", "밸런스 게임", "결과 확인"];
+let step = 1, rate = 0.85, prior = [], answers = {}, qIdx = 0, ranks = [];
+let sttTargets = values.map(v => ({ zh: v.nameZh, py: v.pinyin, kr: v.nameKr }));
+let sttIdx = 0, sttScores = {}, finalSentence = null;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ---------- 단계 이동 ---------- */
+function renderTabs() {
+  document.getElementById("tabs").innerHTML = STEPS.map((s, i) =>
+    `<button class="tab ${step === i + 1 ? "active" : ""} ${isDone(i + 1) ? "done" : ""}" onclick="goStep(${i + 1})"><span class="n">${i + 1}</span>${s}</button>`).join("");
+}
+function isDone(n) {
+  return (n === 3 && prior.length === 3) || (n === 4 && Object.keys(answers).length === questions.length);
+}
+function canEnter(n) {
+  if (n === 5 && Object.keys(answers).length < questions.length) { alert("밸런스 게임 36문항을 모두 완료해 주세요."); return false; }
+  if (n === 4 && prior.length < 3) { alert("사전 선택에서 가치 3가지를 먼저 골라 주세요."); return false; }
+  return true;
+}
+function goStep(n) {
+  if (n < 1 || n > 5) return;
+  if (n > step && !canEnter(n)) return;
+  if (n >= 4 && prior.length < 3 && !canEnter(4)) return;
+  stopRec(); speechSynthesis.cancel();
+  step = n;
+  document.querySelectorAll(".page").forEach((p, i) => p.classList.toggle("active", i + 1 === n));
+  if (n === 5) renderResults();
+  if (n === 4) showQ(qIdx);
+  updateDock(); renderTabs();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function nextStep() { step === 5 ? restart() : goStep(step + 1); }
+function updateDock() {
+  document.getElementById("prevStep").disabled = step === 1;
+  document.getElementById("nextStep").textContent = step === 5 ? "↺ 처음부터 다시 하기" : `${STEPS[step]} →`;
+}
+function restart() {
+  if (!confirm("검사 내용을 모두 지우고 처음부터 다시 할까요?")) return;
+  prior = []; answers = {}; qIdx = 0; ranks = []; sttScores = {};
+  sttTargets = values.map(v => ({ zh: v.nameZh, py: v.pinyin, kr: v.nameKr }));
+  renderPrior(); renderSttList(); selectStt(0); goStep(1);
+}
+
+/* ---------- TTS ---------- */
+let zhVoice = null;
+function pickVoice() {
+  const vs = speechSynthesis.getVoices().filter(v => /zh[-_]CN|cmn/i.test(v.lang));
+  zhVoice = vs.find(v => /Google/i.test(v.name)) || vs.find(v => /Xiaoxiao|Yunxi|Natural/i.test(v.name)) || vs[0] || null;
+}
+if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function speak(text, onend) {
+  if (!("speechSynthesis" in window)) return alert("이 브라우저는 음성 재생을 지원하지 않습니다.");
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "zh-CN"; u.rate = rate; if (zhVoice) u.voice = zhVoice;
+  if (onend) u.onend = onend;
+  speechSynthesis.speak(u);
+}
+
+/* ---------- 1. 어휘 ---------- */
+function renderVocab() {
+  document.getElementById("vocabGrid").innerHTML = values.map((v, i) => `
+    <div class="vcard" id="vcard-${i}">
+      <div class="zh">${v.nameZh}</div>
+      <div class="py">${v.pinyin}</div>
+      <div class="kr">${v.nameKr}</div>
+      <div class="d">${v.cardDesc}</div>
+      <div class="acts">
+        <button class="btn blue" onclick="playOne(${i})">🔊 듣기</button>
+        <button class="btn" onclick="speak('我觉得${v.nameZh}很重要。')">문장으로</button>
+      </div>
+    </div>`).join("");
+}
+function playOne(i) {
+  document.querySelectorAll(".vcard").forEach(c => c.classList.remove("playing"));
+  const c = document.getElementById("vcard-" + i); c.classList.add("playing");
+  speak(values[i].nameZh, () => c.classList.remove("playing"));
+}
+let playingAll = false;
+function playAll() {
+  const btn = document.getElementById("playAllBtn");
+  if (playingAll) { playingAll = false; speechSynthesis.cancel(); btn.textContent = "▶ 전체 연속 듣기"; document.querySelectorAll(".vcard").forEach(c => c.classList.remove("playing")); return; }
+  playingAll = true; btn.textContent = "■ 멈추기";
+  let i = 0;
+  const go = () => {
+    document.querySelectorAll(".vcard").forEach(c => c.classList.remove("playing"));
+    if (!playingAll || i >= values.length) { playingAll = false; btn.textContent = "▶ 전체 연속 듣기"; return; }
+    const c = document.getElementById("vcard-" + i); c.classList.add("playing");
+    c.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    speak(values[i].nameZh, () => { i++; setTimeout(go, 900); });
+  };
+  go();
+}
+document.getElementById("speedSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  rate = +b.dataset.r;
+  document.querySelectorAll("#speedSeg button").forEach(x => x.classList.toggle("on", x === b));
+});
+document.getElementById("showSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const m = b.dataset.m;
+  document.querySelectorAll("#showSeg button").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll(".vcard .py").forEach(x => x.style.visibility = m === "nopy" ? "hidden" : "visible");
+  document.querySelectorAll(".vcard .kr, .vcard .d").forEach(x => x.style.visibility = m === "nokr" ? "hidden" : "visible");
+});
+
+/* ---------- 2. 발음 테스트 (STT) ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, recOn = false;
+function renderSttList() {
+  document.getElementById("sttList").innerHTML = sttTargets.map((t, i) => {
+    const s = sttScores[t.zh];
+    const b = s == null ? `<span class="badge">미응시</span>` : `<span class="badge ${s >= 90 ? "g" : s >= 60 ? "a" : "r"}">${s}점</span>`;
+    return `<button class="stt-item ${i === sttIdx ? "on" : ""}" onclick="selectStt(${i})">
+      <span><span class="zh">${esc(t.zh)}</span><br><span class="kr">${esc(t.kr)}</span></span>${b}</button>`;
+  }).join("");
+}
+function selectStt(i) {
+  stopRec(); sttIdx = i;
+  const t = sttTargets[i];
+  document.getElementById("sttZh").textContent = t.zh;
+  document.getElementById("sttPy").textContent = t.py;
+  document.getElementById("sttKr").textContent = t.kr;
+  document.getElementById("sttResult").className = "stt-result";
+  document.getElementById("micState").textContent = "버튼을 누르고 말하세요";
+  renderSttList();
+}
+function toggleRec() { recOn ? stopRec() : startRec(); }
+function stopRec() {
+  if (rec && recOn) { try { rec.abort(); } catch (e) {} }
+  recOn = false;
+  document.getElementById("micBtn").classList.remove("rec");
+}
+function startRec() {
+  if (!SR) { alert("이 브라우저는 음성 인식을 지원하지 않습니다. Chrome에서 열어 주세요."); return; }
+  speechSynthesis.cancel();
+  rec = new SR();
+  rec.lang = "zh-CN"; rec.interimResults = false; rec.maxAlternatives = 5; rec.continuous = false;
+  const state = document.getElementById("micState");
+  rec.onstart = () => { recOn = true; document.getElementById("micBtn").classList.add("rec"); state.textContent = "듣고 있어요… 지금 말하세요"; };
+  rec.onresult = e => {
+    const alts = Array.from(e.results[0]).map(a => a.transcript);
+    showSttResult(alts);
+  };
+  rec.onerror = e => {
+    const msg = { "no-speech": "목소리가 들리지 않았어요. 다시 시도해 보세요.", "not-allowed": "마이크 권한이 차단되어 있어요. 주소창 왼쪽 아이콘에서 마이크를 허용해 주세요.", "network": "음성 인식에는 인터넷 연결이 필요해요.", "audio-capture": "마이크를 찾을 수 없어요." }[e.error];
+    if (e.error !== "aborted") state.textContent = msg || ("인식 오류: " + e.error);
+  };
+  rec.onend = () => { recOn = false; document.getElementById("micBtn").classList.remove("rec"); if (state.textContent.startsWith("듣고")) state.textContent = "버튼을 누르고 말하세요"; };
+  rec.start();
+}
+const hanOnly = s => (s || "").replace(/[^\u4e00-\u9fff]/g, "");
+function toPy(s, tone) {
+  if (!window.pinyinPro) return "";
+  return pinyinPro.pinyin(s, tone ? {} : { toneType: "none" });
+}
+function lcs(a, b) {
+  const m = a.length, n = b.length, d = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+    d[i][j] = a[i - 1] === b[j - 1] ? d[i - 1][j - 1] + 1 : Math.max(d[i - 1][j], d[i][j - 1]);
+  return d[m][n];
+}
+function scoreOf(target, said) {
+  const t = hanOnly(target), s = hanOnly(said);
+  if (!s) return { score: 0, homo: false };
+  const charScore = lcs([...t], [...s]) / Math.max(t.length, s.length);
+  // 동음자(발음은 같고 글자만 다름)는 발음 자체는 맞은 것으로 인정
+  let pyScore = 0;
+  if (window.pinyinPro) {
+    const tp = toPy(t).split(" "), sp = toPy(s).split(" ");
+    pyScore = lcs(tp, sp) / Math.max(tp.length, sp.length);
+  }
+  const best = Math.max(charScore, pyScore * 0.95);
+  return { score: Math.round(best * 100), homo: pyScore > charScore };
+}
+function showSttResult(alts) {
+  const t = sttTargets[sttIdx];
+  let best = { score: -1 }, bestText = "";
+  alts.forEach(a => { const r = scoreOf(t.zh, a); if (r.score > best.score) { best = r; bestText = a; } });
+  sttScores[t.zh] = best.score;
+  const lvl = best.score >= 90 ? "g" : best.score >= 60 ? "a" : "r";
+  const msg = best.score >= 90 ? "🎉 정확해요!" : best.score >= 60 ? "👍 거의 맞았어요!" : "🔁 다시 한번 들어보고 도전해 보세요";
+  const tChars = [...hanOnly(t.zh)], sSet = new Set(hanOnly(bestText));
+  const marked = tChars.map(c => `<span class="${sSet.has(c) ? "ch-ok" : "ch-ng"}">${c}</span>`).join("");
+  const el = document.getElementById("sttResult");
+  el.className = "stt-result show " + lvl;
+  el.innerHTML = `
+    <div class="score">${msg} <span class="py">${best.score}점</span></div>
+    <div class="row"><b>목표</b><span class="zh" style="font-size:22px;">${marked}</span><span class="py" style="color:var(--blue)">${esc(t.py)}</span></div>
+    <div class="row"><b>인식 결과</b><span class="zh" style="font-size:22px;">${esc(bestText || "(인식 안 됨)")}</span><span class="py">${esc(toPy(hanOnly(bestText), true))}</span></div>
+    ${best.homo && best.score < 100 ? `<div class="row" style="color:var(--sub)">글자는 다르게 인식됐지만 발음은 비슷하게 들렸어요(동음자). 성조를 조금 더 또렷하게 해 보세요.</div>` : ""}
+    ${best.score < 90 ? `<div class="row" style="color:var(--sub)">빨간 밑줄 글자가 다르게 들렸어요. 🔊로 다시 듣고 따라 해 보세요.</div>` : ""}`;
+  document.getElementById("micState").textContent = "다시 하려면 🎤를 누르세요";
+  renderSttList();
+}
+if (!SR) document.getElementById("sttNotice").textContent = "⚠️ 이 브라우저는 음성 인식을 지원하지 않습니다. Chrome(크롬북 포함) 또는 Edge에서 열어 주세요. 듣기 기능은 그대로 사용할 수 있습니다.";
+
+/* ---------- 3. 사전 선택 ---------- */
+function renderPrior() {
+  document.getElementById("priorGrid").innerHTML = values.map((v, i) => {
+    const r = prior.indexOf(v.nameKr);
+    return `<button class="prior ${r > -1 ? "sel" : ""}" onclick="togglePrior(${i})">
+      ${r > -1 ? `<span class="rank">${r + 1}위</span>` : ""}
+      <div class="zh">${v.nameZh}</div><div class="py">${v.pinyin}</div><div class="kr">${v.nameKr}</div></button>`;
+  }).join("");
+  renderTabs();
+}
+function togglePrior(i) {
+  const k = values[i].nameKr, r = prior.indexOf(k);
+  if (r > -1) prior.splice(r, 1);
+  else if (prior.length >= 3) return alert("3위까지만 고를 수 있어요. 바꾸려면 선택한 카드를 다시 눌러 취소하세요.");
+  else prior.push(k);
+  renderPrior();
+}
+
+/* ---------- 4. 밸런스 게임 ---------- */
+function renderPalette() {
+  document.getElementById("palette").innerHTML = questions.map((q, i) =>
+    `<button class="pbtn ${answers[q.id] ? "ans" : ""} ${i === qIdx ? "cur" : ""}" onclick="showQ(${i})">${i + 1}</button>`).join("");
+  const n = Object.keys(answers).length;
+  document.getElementById("progNum").textContent = `${n} / ${questions.length}`;
+  document.getElementById("progFill").style.width = (n / questions.length * 100) + "%";
+}
+function showQ(i) {
+  qIdx = i; const q = questions[i];
+  document.getElementById("qNum").textContent = "Q" + (i + 1);
+  document.getElementById("qScenario").textContent = "📌 " + q.scenario;
+  document.getElementById("textA").textContent = q.textA;
+  document.getElementById("textB").textContent = q.textB;
+  document.getElementById("choiceA").classList.toggle("sel", answers[q.id] === q.valA);
+  document.getElementById("choiceB").classList.toggle("sel", answers[q.id] === q.valB);
+  document.getElementById("qPrev").disabled = i === 0;
+  document.getElementById("qNext").disabled = i === questions.length - 1;
+  renderPalette();
+}
+function choose(ab) {
+  const q = questions[qIdx];
+  answers[q.id] = ab === "A" ? q.valA : q.valB;
+  showQ(qIdx); renderTabs();
+  if (Object.keys(answers).length === questions.length && qIdx === questions.length - 1) {
+    setTimeout(() => { if (confirm("36문항을 모두 마쳤어요! 결과를 확인할까요?")) goStep(5); }, 250);
+    return;
+  }
+  if (qIdx < questions.length - 1) setTimeout(() => showQ(nextUnanswered()), 280);
+}
+function nextUnanswered() {
+  for (let k = 1; k <= questions.length; k++) {
+    const j = (qIdx + k) % questions.length;
+    if (!answers[questions[j].id]) return j;
+  }
+  return Math.min(qIdx + 1, questions.length - 1);
+}
+function moveQ(d) { const j = qIdx + d; if (j >= 0 && j < questions.length) showQ(j); }
+document.addEventListener("keydown", e => {
+  if (step !== 4 || e.target.tagName === "INPUT") return;
+  const k = e.key.toLowerCase();
+  if (k === "a") choose("A"); else if (k === "b") choose("B");
+  else if (e.key === "ArrowLeft") moveQ(-1); else if (e.key === "ArrowRight") moveQ(1);
+});
+
+/* ---------- 5. 결과 ---------- */
+function renderResults() {
+  const score = {}; values.forEach(v => score[v.nameKr] = 0);
+  Object.values(answers).forEach(k => { if (k in score) score[k]++; });
+  ranks = values.map(v => ({ ...v, score: score[v.nameKr] })).sort((a, b) => b.score - a.score);
+  const byKr = k => values.find(v => v.nameKr === k);
+  const top3 = ranks.slice(0, 3).map(r => r.nameKr);
+
+  document.getElementById("cmpBody").innerHTML = [0, 1, 2].map(i => {
+    const p = byKr(prior[i]), t = ranks[i];
+    const hit = top3.includes(prior[i]);
+    return `<tr><td><b>${i + 1}위</b></td>
+      <td class="${hit ? "match" : ""}"><span class="zh">${p.nameZh}</span><br>${p.nameKr}${hit ? " ✓" : ""}</td>
+      <td><span class="zh" style="color:var(--red)">${t.nameZh}</span><br><b>${t.nameKr}</b> · ${t.score}점</td></tr>`;
+  }).join("");
+  const same = prior.filter(k => top3.includes(k)).length;
+  const tie = ranks[2].score === ranks[3].score;
+  document.getElementById("cmpSummary").innerHTML =
+    `사전 선택한 3가지 중 <b>${same}개</b>가 실제 검사 상위 3위 안에 들었어요. ` +
+    (same === 3 ? "자신의 가치관을 잘 알고 있네요!" : same === 0 ? "생각과 실제 선택이 꽤 달라요. 어떤 문항에서 그런 차이가 생겼는지 떠올려 보세요." : "일부는 같고 일부는 달라요. 차이가 난 가치를 살펴보세요.") +
+    (tie ? `<br><span style="color:var(--sub);font-size:14px;">※ 3위와 4위가 같은 점수(${ranks[2].score}점)예요.</span>` : "");
+
+  const max = Math.max(...ranks.map(r => r.score), 1);
+  document.getElementById("scoreList").innerHTML = ranks.map((r, i) => `
+    <div class="srow ${i < 3 ? "top" : ""}"><span>${r.nameKr} <span class="zh" style="color:var(--sub)">${r.nameZh}</span></span>
+      <div class="strack"><div style="width:${r.score / max * 100}%"></div></div><span class="v">${r.score}</span></div>`).join("");
+
+  const t1 = ranks[0];
+  const josa = /[가-힣]/.test(t1.nameKr.slice(-1)) && (t1.nameKr.slice(-1).charCodeAt(0) - 0xac00) % 28 ? "이" : "가";
+  finalSentence = { zh: `我觉得${t1.nameZh}很重要。`, py: `Wǒ juéde ${t1.pinyin} hěn zhòngyào.`, kr: `저는 ${t1.nameKr}${josa} 중요하다고 생각해요.` };
+  document.getElementById("finalZh").textContent = finalSentence.zh;
+  document.getElementById("finalPy").textContent = finalSentence.py;
+  document.getElementById("finalKr").textContent = finalSentence.kr;
+}
+function practiceFinal() {
+  if (!sttTargets.some(t => t.zh === finalSentence.zh)) sttTargets.push({ ...finalSentence, kr: "나의 핵심 문장" });
+  goStep(2); selectStt(sttTargets.findIndex(t => t.zh === finalSentence.zh));
+}
+
+/* ---------- 시작 ---------- */
+renderVocab(); renderSttList(); selectStt(0); renderPrior(); renderPalette(); goStep(1);
+</script>
+</body>
+</html>
